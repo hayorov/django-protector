@@ -107,7 +107,7 @@ class GenericUserToGroup(models.Model):
         settings.AUTH_USER_MODEL, related_name='generic_group_relations'
     )
     roles = models.IntegerField(verbose_name=_('roles'), blank=True, null=True)
-    group_id = models.PositiveIntegerField()
+    group_id = models.TextField()
     group_content_type = models.ForeignKey(ContentType)
     group = GenericForeignKey('group_content_type', 'group_id')
     date_joined = models.DateTimeField(verbose_name=_('date joined'), auto_now_add=True)

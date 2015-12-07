@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from protector.helpers import get_all_user_permissions
-
+from hashlib import md5
 
 ALL_PERMS_CACHE_FIELD = '_all_permissions_cache'
 
@@ -31,7 +31,7 @@ class GenericPermissionBackend(object):
             cache_field_name = ALL_PERMS_CACHE_FIELD
         else:
             cache_field_name = '{field}_{pk}_{ctype_id}'.format(
-                field=ALL_PERMS_CACHE_FIELD, pk=obj.pk,
+                field=ALL_PERMS_CACHE_FIELD, pk=md5(str(obj.pk)),
                 ctype_id=ContentType.objects.get_for_model(obj).id
             )
         if not hasattr(user_obj, cache_field_name) or disable_cache:

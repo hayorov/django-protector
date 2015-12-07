@@ -1,12 +1,13 @@
-import os
 import sys
+
+import django
+import os
+from django.conf import settings
+from django.test.utils import get_runner
+
 os.environ['DJANGO_SETTINGS_MODULE'] = 'application.settings'
 test_dir = os.path.dirname(__file__)
-sys.path.insert(0, test_dir + '/test_project')
-
-from django.test.utils import get_runner
-from django.conf import settings
-import django
+sys.path.append(os.path.join(test_dir, 'test_project'))
 
 
 def runtests():
@@ -14,3 +15,7 @@ def runtests():
     test_runner = get_runner(settings)(verbosity=1, interactive=True)
     failures = test_runner.run_tests(['protector'])
     sys.exit(bool(failures))
+
+
+if __name__ == '__main__':
+    runtests()
