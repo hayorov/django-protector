@@ -150,7 +150,7 @@ class OwnerToPermission(models.Model):
         Multiple links from owner to object is supported i.e. different permissions
     """
     ADD_PERMISSION = ADD_PERMISSION_PERMISSION
-    object_id = models.PositiveIntegerField(
+    object_id = models.TextField(
         verbose_name=_('object id'),
         default=NULL_OWNER_TO_PERMISSION_OBJECT_ID
     )
@@ -160,7 +160,7 @@ class OwnerToPermission(models.Model):
         default=NULL_OWNER_TO_PERMISSION_CTYPE_ID
     )
     content_object = GenericForeignKey('content_type', 'object_id')
-    owner_object_id = models.PositiveIntegerField(verbose_name=_('owner id'))
+    owner_object_id = models.TextField(verbose_name=_('owner id'))
     owner_content_type = models.ForeignKey(
         verbose_name=_('owner type'),
         to=ContentType, related_name='restricted_object_relations'
@@ -364,9 +364,9 @@ def filter_queryset_by_permission(qset, user, permission):
     perm_id = get_permission_id_by_name(permission)
     if user.has_perm(permission):
         return qset.all()
-    if user.id is None or perm_id is None:
+    if user.pk is None or perm_id is None:
         return qset.none()
-    condition = _get_permission_filter(qset, user.id, perm_id)
+    condition = _get_permission_filter(qset, user.pk, perm_id)
     return qset.extra(where=[condition])
 
 
@@ -392,7 +392,7 @@ def _get_permission_filter(qset, user_id, perm_id):
     if hasattr(qset, 'get_ctype_id_field'):
         ctype_id_field = qset.get_ctype_id_field()
     else:
-        ctype_id_field = str(ContentType.objects.get_for_model(qset.model).id)
+        ctype_id_field = str(ContentType.objects.get_for_model(qset.model).pk)
     return _get_filter_by_perm_condition(qset, user_id, perm_id, obj_id_field, ctype_id_field)
 
 
@@ -451,9 +451,9 @@ class RestrictedQuerySet(PermissionQuerySet):
             return self.filter(restriction_id__isnull=True)
         if user.has_perm(VIEW_PERMISSION_NAME):
             return self
-        if user.id is None:
+        if user.pk is None:
             return self.filter(restriction_id__isnull=True)
-        condition = self._get_visible_condition(user.id, get_view_permission().id)
+        condition = self._get_visible_condition(user.pk, get_view_permission().pk)
         return self.extra(where=[condition])
 
     def _get_visible_condition(self, user_id, perm_id):
@@ -472,7 +472,7 @@ class Restriction(MPTTModel, models.Model):
     """
         This model contains resriction hierarchy
     """
-    object_id = models.PositiveIntegerField(blank=False, null=False)
+    object_id = models.TextField(blank=False, null=False)
     content_type = models.ForeignKey(ContentType, blank=False, null=False)
     restricted_object = GenericForeignKey('content_type', 'object_id')
 
@@ -500,7 +500,7 @@ class Restricted(models.Model):
     """
     VIEW_PERMISSION_NAME = VIEW_PERMISSION_NAME
 
-    restriction_id = models.PositiveIntegerField(blank=True, null=True)
+    restriction_id = models.TextField(blank=True, null=True)
     restriction_content_type = models.ForeignKey(
         ContentType, blank=True, null=True, related_name="%(app_label)s_%(class)s_restrictions"
     )
@@ -552,7 +552,7 @@ class Restricted(models.Model):
                         restriction_content_type_id=current_restriction_ctype_id
                     )
                     objs.update(
-                        restriction_id=self.id,
+                        restriction_id=self.pk,
                         restriction_content_type=ContentType.objects.get_for_model(self)
                     )
             self.save()
@@ -598,7 +598,7 @@ class Restricted(models.Model):
         )
         if parent_object is not None and isinstance(parent_object, Restricted):
             parent_restriction = Restriction.objects.get(
-                object_id=parent_object.id,
+                object_id=parent_object.pk,
                 content_type=ContentType.objects.get_for_model(parent_object)
             )
             self_restriction.parent = parent_restriction
@@ -703,7 +703,7 @@ class GroupUserManager(models.Manager):
     def add(self, user, roles=None, responsible=None):
         roles = roles or self.instance.DEFAULT_ROLE
         gug, created = GenericUserToGroup.objects.get_or_create(
-            user=user, group_id=self.instance.id,
+            user=user, group_id=self.instance.pk,
             group_content_type=ContentType.objects.get_for_model(self.instance),
             defaults={'roles': roles, 'responsible': responsible}
         )
@@ -752,7 +752,7 @@ class OwnerPermissionManager(models.Manager):
     def add(self, perm, obj=None, responsible=None, roles=None):
         roles = roles or DEFAULT_ROLE
         kwargs = {
-            'owner_object_id': self.instance.id,
+            'owner_object_id': self.instance.pk,
             'owner_content_type': ContentType.objects.get_for_model(self.instance),
             'permission': perm,
             'defaults': {'responsible': responsible, 'roles': roles}
@@ -800,7 +800,7 @@ def get_permission_id_by_name(permission):
             perm_id = Permission.objects.get(
                 codename=permission.split('.')[1],
                 content_type__app_label=permission.split('.')[0]
-            ).id
+            ).pk
         except Permission.DoesNotExist:
             return None
         cache.set(cache_key, perm_id)
