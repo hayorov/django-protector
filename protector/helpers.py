@@ -18,7 +18,7 @@ def get_all_permission_owners(permission, include_superuser=False, include_group
     query = _get_permissions_query(obj)
     query.fields.append("gug.user_id AS id")
     query.conditions.append("op.permission_id = {perm_id!s}")
-    query.params.update({'perm_id': permission.id})
+    query.params.update({'perm_id': permission.pk})
     table_name = get_user_model()._meta.db_table
     condition = "{table_name!s}.id IN ({subquery!s})"
     if include_superuser:
@@ -33,7 +33,7 @@ def get_all_user_permissions(user, obj=None):
     perm_query = _get_permissions_query(obj)
     perm_query.fields.append("IFNULL(op.permission_id, gl.permission_id) as perm_id")
     perm_query.fields.append("gl.permission_id AS gl_perm_id")
-    perm_query.conditions.append("gug.user_id = {user_id!s}".format(user_id=user.id))
+    perm_query.conditions.append("gug.user_id = {user_id!s}".format(user_id=user.pk))
     query = Query(tables=[
         """
             {permission_table!s} perm_table LEFT JOIN {content_type_table!s} ctype_table ON
