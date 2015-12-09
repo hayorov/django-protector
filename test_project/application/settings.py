@@ -7,7 +7,7 @@ sys.path.insert(1, BASE_DIR + '/..')
 
 SECRET_KEY = '($7wfk^1hd5+i-2j1k^h$v^-r-7r$47f@2-9&_%5tlk^9wwfi6'
 
-DEBUG = False
+DEBUG = True
 
 TEMPLATE_DEBUG = False
 
@@ -42,7 +42,7 @@ DATABASES = {
     }
 }
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-ru'
 
 TIME_ZONE = 'UTC'
 
