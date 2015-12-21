@@ -20,7 +20,7 @@ setup(
     author_email='greyone@greyone.ru',
     test_suite='runtests.runtests',
     install_requires=[
-        'django-mptt>=0.6',
+        'django-mptt>=0.6,<0.8',
         'Django>=1.7'
     ],
     classifiers=[
