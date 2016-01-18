@@ -107,7 +107,7 @@ class GenericUserToGroup(models.Model):
         settings.AUTH_USER_MODEL, related_name='generic_group_relations'
     )
     roles = models.IntegerField(verbose_name=_('roles'), blank=True, null=True)
-    group_id = models.TextField()
+    group_id = models.CharField(max_length=64)
     group_content_type = models.ForeignKey(ContentType)
     group = GenericForeignKey('group_content_type', 'group_id')
     date_joined = models.DateTimeField(verbose_name=_('date joined'), auto_now_add=True)
@@ -150,9 +150,10 @@ class OwnerToPermission(models.Model):
         Multiple links from owner to object is supported i.e. different permissions
     """
     ADD_PERMISSION = ADD_PERMISSION_PERMISSION
-    object_id = models.TextField(
+    object_id = models.CharField(
         verbose_name=_('object id'),
-        default=NULL_OWNER_TO_PERMISSION_OBJECT_ID
+        default=NULL_OWNER_TO_PERMISSION_OBJECT_ID,
+        max_length=64
     )
     content_type = models.ForeignKey(
         verbose_name=_('object type'),
@@ -160,7 +161,7 @@ class OwnerToPermission(models.Model):
         default=NULL_OWNER_TO_PERMISSION_CTYPE_ID
     )
     content_object = GenericForeignKey('content_type', 'object_id')
-    owner_object_id = models.TextField(verbose_name=_('owner id'))
+    owner_object_id = models.CharField(verbose_name=_('owner id'), max_length=64)
     owner_content_type = models.ForeignKey(
         verbose_name=_('owner type'),
         to=ContentType, related_name='restricted_object_relations'
@@ -472,7 +473,7 @@ class Restriction(MPTTModel, models.Model):
     """
         This model contains resriction hierarchy
     """
-    object_id = models.TextField(blank=False, null=False)
+    object_id = models.CharField(blank=False, null=False, max_length=64)
     content_type = models.ForeignKey(ContentType, blank=False, null=False)
     restricted_object = GenericForeignKey('content_type', 'object_id')
 
@@ -500,7 +501,7 @@ class Restricted(models.Model):
     """
     VIEW_PERMISSION_NAME = VIEW_PERMISSION_NAME
 
-    restriction_id = models.TextField(blank=True, null=True)
+    restriction_id = models.CharField(blank=True, null=True, max_length=64)
     restriction_content_type = models.ForeignKey(
         ContentType, blank=True, null=True, related_name="%(app_label)s_%(class)s_restrictions"
     )
