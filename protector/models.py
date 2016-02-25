@@ -129,7 +129,7 @@ class GenericUserToGroup(models.Model):
             app=self.group_content_type.app_label,
             model=self.group_content_type.model,
             group_id=self.group_id,
-            username=self.user.username
+            username=self.user.get_username()
         )
 
 
