@@ -17,7 +17,7 @@ def get_user_ctype():
     return ContentType.objects.get_for_model(get_user_model())
 
 #  Need this to avoid null values in OwnerToPermission table
-NULL_OWNER_TO_PERMISSION_OBJECT_ID = 0
+NULL_OWNER_TO_PERMISSION_OBJECT_ID = 'null'  # object_id is char field
 NULL_OWNER_TO_PERMISSION_CTYPE_ID = 1  # That is ContentType ctype id
 
 ADD_PERMISSION_PERMISSION = 'add_permission'
